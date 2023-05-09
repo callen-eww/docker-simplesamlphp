@@ -5,7 +5,7 @@ RUN apt-get update && \
     apt-get -y install apt-transport-https git curl vim --no-install-recommends && \
     rm -r /var/lib/apt/lists/*
 
-RUN curl -sSL -o /tmp/mo https://git.io/get-mo && \
+RUN curl -k -v -sSL -o /tmp/mo https://git.io/get-mo && \
     chmod +x /tmp/mo
 
 # Docker build
@@ -18,7 +18,9 @@ LABEL git-revision=$GIT_REVISION \
 
 # SimpleSAMLphp
 ARG SIMPLESAMLPHP_VERSION
-RUN curl -sSL -o /tmp/simplesamlphp.tar.gz https://github.com/simplesamlphp/simplesamlphp/releases/download/v$SIMPLESAMLPHP_VERSION/simplesamlphp-$SIMPLESAMLPHP_VERSION.tar.gz && \
+RUN export http_proxy=http://squid.oneeuronet.com:3128 &&\
+    export https_proxy=http://squid.oneeuronet.com:3128 &&\
+    curl -k -sSL -o /tmp/simplesamlphp.tar.gz https://github.com/simplesamlphp/simplesamlphp/releases/download/v1.19.8/simplesamlphp-1.19.8.tar.gz  && \
     tar xzf /tmp/simplesamlphp.tar.gz -C /tmp && \
     mv /tmp/simplesamlphp-* /var/www/simplesamlphp && \
     touch /var/www/simplesamlphp/modules/exampleauth/enable
@@ -39,6 +41,7 @@ RUN /tmp/mo /tmp/simplesamlphp.conf.mo > /etc/apache2/sites-available/simplesaml
 
 RUN a2dissite 000-default.conf default-ssl.conf && \
     a2enmod rewrite && \
+    a2enmod headers && \
     a2ensite simplesamlphp.conf
 
 # Clean up

@@ -11,6 +11,9 @@
     </Directory>
 
     <Directory /var/www/simplesamlphp/www>
+        Header set Access-Control-Allow-Origin "*"
+        Header set Access-Control-Allow-Headers Content-Type
+        Header set Access-Control-Allow-Headers x-xsrf-token
         <IfModule !mod_authz_core.c>
         Require all granted
         </IfModule>
